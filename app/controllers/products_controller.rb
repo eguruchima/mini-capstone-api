@@ -13,8 +13,8 @@ class ProductsController < ApplicationController
   @product = Product.create(
     name: params[:name],
     price: params[:price],
-    image_url: params[:image_url],
-    description: params[:description]
+    description: params[:description],
+    supplier_id: params[:supplier_id]
   )
   if @product.valid?
   render :show
@@ -28,12 +28,11 @@ class ProductsController < ApplicationController
     if @product.update(
       name: params[:name] || @product.name,
       price: params[:price] || @product.price,
-      image_url: params[:image_url] || @product.image_url,
       description: params[:description] || @product.description
     )
     render :show
     else
-      render json: { errors: @prodct.errors.full_messages }, status: 422
+      render json: { errors: @product.errors.full_messages }, status: 422
     end
   end
 

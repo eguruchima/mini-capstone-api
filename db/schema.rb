@@ -10,11 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_26_200347) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_17_165456) do
+  create_table "images", force: :cascade do |t|
+    t.string "url"
+    t.integer "product_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "name"
     t.decimal "price", precision: 9, scale: 2
-    t.string "image_url"
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -26,6 +32,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_200347) do
     t.string "name"
     t.string "email"
     t.string "phone_number"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

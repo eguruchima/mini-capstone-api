@@ -1,12 +1,10 @@
 class ProductsController < ApplicationController
+  before_action :authenticate_admin, except: [ :index, :show ]
+
+
   def index
     @products = Product.all
     render :index
-  end
-
-  def show
-    @product = Product.find_by(id: params[:id])
-    render :show
   end
 
   def create
@@ -17,20 +15,29 @@ class ProductsController < ApplicationController
     supplier_id: params[:supplier_id]
   )
   if @product.valid?
-  render :show
+    Image.create(url: params[:image_url], product_id: @product.id)
+    render :show
   else
     render json: { errors: @product.errors.full_messages }, status: 422
   end
   end
 
+
+  def show
+    @product = Product.find_by(id: params[:id])
+    render :show
+  end
+
+
   def update
     @product = Product.find_by(id: params[:id])
-    if @product.update(
+    @product.update(
       name: params[:name] || @product.name,
       price: params[:price] || @product.price,
-      description: params[:description] || @product.description
+      description: params[:description] || @product.description,
     )
-    render :show
+    if @product.valid?
+      render :show
     else
       render json: { errors: @product.errors.full_messages }, status: 422
     end

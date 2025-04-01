@@ -1,27 +1,45 @@
 class Product < ApplicationRecord
+  has_many :category_products
+  has_many :categories, through: :category_products
+
+
   validates :name, presence: true
-  validates :name, uniqueness: { case_sensitive: false }
+  validates :name, uniqueness: true
   validates :price, presence: true
   validates :price, numericality: { greater_than: 0 }
   validates :description, presence: true
-  validates :description, length: { in: 1..500 }
+  validates :description, length: { in: 1..5000 }
+
+  TAX_RATE = 0.09
+
+  def is_discounted?
+    price <= 10
+  end
+
+  def tax
+    price * TAX_RATE
+  end
+
+  def total
+    price + tax
+  end
 
   belongs_to :supplier
-  has_many :images
-
+  # validates :supplier_id, presence: true
   # def supplier
   #   Supplier.find_by(id: supplier_id)
   # end
 
-  def is_discounted?
-    price && price <= 10
-  end
+  has_many :images
+  # def images
+  #   Image.where(product_id: id)
+  # end
 
-  def tax
-    price * 0.09
-  end
-
-  def total
-    price * 1.09
+  def primary_image_url
+    if images.length > 0
+      images[0].url
+    else
+      "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+    end
   end
 end

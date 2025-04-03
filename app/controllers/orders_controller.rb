@@ -18,28 +18,42 @@ class OrdersController < ApplicationController
   end
 
   def create
-    if current_user
-      product = Product.find_by(id: params[:product_id])
+    carted_products = CartedProduct.where(user_id: current_user.id, status: "carted")
 
-      calculated_subtotal = product.price * params[:quantity].to_i
-      calculated_tax = product.tax * params[:quantity].to_i
-      calculated_total = calculated_subtotal + calculated_tax
+    calculated_subtotal = 0
+    calculated_tax = 0
+    index = 0
+    while index < carted_products.length
+      carted_product = carted_products[index]
+      calculated_subtotal += carted_product.product.price * carted_product.qunatity
+      index += 1
+    end
+
+    calculated_total = calculated_subtotal + calculated_tax
 
       @order = Order.create(
         user_id: current_user.id,
-        product_id: params[:product_id],
-        quantity: params[:quantity],
         subtotal: calculated_subtotal,
         tax: calculated_tax,
         total: calculated_total
       )
       if @order.valid?
-      render :show
+        index = 0
+        while index < carted_products.length
+          carted_product = carted_products[index]
+          carted_product.update(status: "purchased", order_id: @order.id)
+          index +=1
+        end
+        render :show
       else
         render json: { errors: @order.errors.full_messages }, status: 422
       end
-    else
-    render json: {}, status: :unauthorized
     end
-  end
+
+
+    def destroy
+      carted_product = CartedProduct.find_by(id: params[:id])
+      carted_product.update(status: "removed")
+      render json: { message: "Successfully destroyed carted product!" }
+    end
 end
